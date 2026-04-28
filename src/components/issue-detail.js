@@ -5,6 +5,7 @@
 import { getIssueById, hasUpvoted, upvoteIssue, removeUpvote, updateIssueStatus } from '../data/store.js';
 import { getCategoryByName } from '../data/categories.js';
 import { getCurrentUser } from '../data/auth.js';
+import { getDepartmentForCategory } from '../data/departments.js';
 import { createCommentSection } from './comment-section.js';
 import { timeAgo, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
 import { showToast } from './toast.js';
@@ -56,6 +57,10 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
           <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);flex-wrap:wrap;">
             <span class="badge" style="background:${cat.bgColor};color:${cat.color};border:1px solid ${cat.borderColor};font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
               ${cat.emoji} ${cat.name}
+            </span>
+            <span class="badge" style="background:var(--bg-surface-hover);color:var(--text-secondary);border:1px solid var(--border-color);font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
+              <i data-lucide="building-2" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i>
+              ${getDepartmentForCategory(issue.category)}
             </span>
             <span class="badge ${getStatusClass(issue.status)}" style="font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
               ${formatStatus(issue.status)}

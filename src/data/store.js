@@ -132,6 +132,13 @@ export function updateIssueStatus(id, status) {
 
   const oldStatus = issue.status;
   issue.status = status;
+  
+  if (status === 'resolved' && oldStatus !== 'resolved') {
+    issue.resolvedAt = new Date().toISOString();
+  } else if (status !== 'resolved') {
+    delete issue.resolvedAt;
+  }
+  
   saveIssues(issues);
 
   // Send notification to issue author on status change
@@ -253,6 +260,7 @@ export function seedIfEmpty() {
       categoryConfidence: 0.85,
       upvotes: 56,
       status: 'resolved',
+      resolvedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       userId: 'demo-user-1',
       userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),

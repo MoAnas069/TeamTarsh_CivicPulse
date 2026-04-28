@@ -21,6 +21,7 @@ import { openReportModal } from './components/report-modal.js';
 import { createMapView } from './components/map-view.js';
 import { openAuthModal } from './components/auth-modal.js';
 import { createProfilePage } from './components/profile-page.js';
+import { createAnalyticsDashboard } from './components/analytics-dashboard.js';
 
 import { isLoggedIn, seedDemoUser } from './data/auth.js';
 import { seedComments } from './data/comments.js';
@@ -67,6 +68,7 @@ function renderApp() {
     }),
     onLoginClick: () => openAuthModal(() => renderApp()),
     onProfileClick: () => navigateTo('profile'),
+    onAnalyticsClick: () => navigateTo('analytics'),
     onNavigateToIssue: (id) => navigateTo('detail', id),
   });
   app.appendChild(header);
@@ -84,6 +86,9 @@ function renderApp() {
       break;
     case 'profile':
       renderProfileView();
+      break;
+    case 'analytics':
+      renderAnalyticsView();
       break;
   }
 
@@ -151,6 +156,12 @@ function renderProfileView() {
     () => navigateTo('feed')
   );
   app.appendChild(profile);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderAnalyticsView() {
+  const dashboard = createAnalyticsDashboard();
+  app.appendChild(dashboard);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

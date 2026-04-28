@@ -5,6 +5,7 @@
 import { getCategoryByName } from '../data/categories.js';
 import { hasUpvoted, upvoteIssue, removeUpvote } from '../data/store.js';
 import { getCommentCount } from '../data/comments.js';
+import { getDepartmentForCategory } from '../data/departments.js';
 import { timeAgo, truncate, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
 
 /**
@@ -31,9 +32,13 @@ export function createIssueCard(issue, onSelect) {
   card.innerHTML = `
     ${imageHtml}
     <div class="issue-card-body">
-      <div class="issue-card-top">
+      <div class="issue-card-top" style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
         <span class="badge" style="background:${cat.bgColor};color:${cat.color};border:1px solid ${cat.borderColor};">
           ${cat.emoji} ${cat.name}
+        </span>
+        <span class="badge" style="background:var(--bg-surface-hover);color:var(--text-secondary);border:1px solid var(--border-color);">
+          <i data-lucide="building-2" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-right:4px;"></i>
+          ${getDepartmentForCategory(issue.category)}
         </span>
         <span class="badge ${getStatusClass(issue.status)}">${formatStatus(issue.status)}</span>
       </div>
