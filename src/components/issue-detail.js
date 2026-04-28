@@ -1,10 +1,11 @@
 /* ============================================
    CivicPulse — Issue Detail Component
+   Government Portal Theme
    ============================================ */
 
 import { getIssueById, hasUpvoted, upvoteIssue, removeUpvote, updateIssueStatus } from '../data/store.js';
 import { getCategoryByName } from '../data/categories.js';
-import { getCurrentUser } from '../data/auth.js';
+import { getCurrentUser, getUserById } from '../data/auth.js';
 import { getDepartmentForCategory } from '../data/departments.js';
 import { createCommentSection } from './comment-section.js';
 import { timeAgo, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
@@ -32,10 +33,30 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
   const voted = hasUpvoted(issue.id);
   const user = getCurrentUser();
   const isAuthor = user && user.id === issue.userId;
+  const isOfficial = user && user.role === 'official';
+  const canUpdate = isAuthor || isOfficial;
+
+  const assignee = issue.assignedTo ? getUserById(issue.assignedTo) : null;
+  const assignedHtml = assignee ? `
+    <div style="background:var(--primary-50);border:1px solid var(--primary-200);padding:var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-3);">
+      <i data-lucide="shield-check" style="width:20px;height:20px;color:var(--primary-500);"></i>
+      <div>
+        <div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Assigned Official</div>
+        <div style="font-weight:500;color:var(--text-primary);">${assignee.name}</div>
+      </div>
+    </div>
+  ` : '';
+
+  let priorityHtml = '';
+  if (issue.severityScore >= 80) {
+    priorityHtml = `<span class="badge" style="background:var(--red-50);color:var(--red-600);border:1px solid rgba(239,68,68,0.25);"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> CRITICAL SEVERITY</span>`;
+  } else if (issue.severityScore >= 60) {
+    priorityHtml = `<span class="badge" style="background:var(--amber-50);color:var(--amber-600);border:1px solid rgba(245,158,11,0.25);"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> HIGH SEVERITY</span>`;
+  }
 
   const imageHtml = issue.imageUrl
     ? `<img class="detail-image" src="${issue.imageUrl}" alt="${escapeHtml(issue.description.substring(0, 50))}" />`
-    : `<div class="detail-image" style="background: linear-gradient(135deg, ${cat.bgColor}, ${cat.borderColor}); height: 300px; display: flex; align-items: center; justify-content: center; font-size: 5rem;">${cat.emoji}</div>`;
+    : `<div class="detail-image" style="background: ${cat.bgColor}; height: 300px; display: flex; align-items: center; justify-content: center;"><i data-lucide="${cat.icon}" style="width:64px;height:64px;color:${cat.color};opacity:0.5;"></i></div>`;
 
   container.innerHTML = `
     <div style="padding: var(--space-8) 0;">
@@ -56,21 +77,24 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
         <div class="detail-main">
           <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);flex-wrap:wrap;">
             <span class="badge" style="background:${cat.bgColor};color:${cat.color};border:1px solid ${cat.borderColor};font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
-              ${cat.emoji} ${cat.name}
+              <i data-lucide="${cat.icon}" style="width:14px;height:14px;display:inline;"></i> ${cat.name}
             </span>
-            <span class="badge" style="background:var(--bg-surface-hover);color:var(--text-secondary);border:1px solid var(--border-color);font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
+            <span class="badge" style="background:var(--gray-50);color:var(--text-secondary);border:1px solid var(--border-color);font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
               <i data-lucide="building-2" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i>
               ${getDepartmentForCategory(issue.category)}
             </span>
             <span class="badge ${getStatusClass(issue.status)}" style="font-size:var(--font-sm);padding:var(--space-2) var(--space-4);">
               ${formatStatus(issue.status)}
             </span>
+            ${priorityHtml}
             ${issue.categoryConfidence ? `
               <span class="badge badge-primary" style="font-size:var(--font-xs);">
-                🤖 AI: ${Math.round(issue.categoryConfidence * 100)}% confidence
+                <i data-lucide="cpu" style="width:12px;height:12px;display:inline;"></i> AI: ${Math.round(issue.categoryConfidence * 100)}% confidence
               </span>
             ` : ''}
           </div>
+
+          ${assignedHtml}
 
           <div style="font-size:var(--font-sm);color:var(--text-tertiary);margin-bottom:var(--space-4);">
             Reported by <strong style="color:var(--text-secondary);">${escapeHtml(issue.userName || 'Anonymous')}</strong>
@@ -111,7 +135,7 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
             <h3><i data-lucide="clock" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> Timeline</h3>
             <div style="display:flex;flex-direction:column;gap:var(--space-3);">
               <div style="display:flex;align-items:center;gap:var(--space-3);">
-                <div style="width:8px;height:8px;border-radius:50%;background:var(--primary-400);flex-shrink:0;"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--primary-500);flex-shrink:0;"></div>
                 <div>
                   <div style="font-size:var(--font-sm);font-weight:500;">Reported</div>
                   <div style="font-size:var(--font-xs);color:var(--text-tertiary);">${timeAgo(issue.createdAt)} · ${new Date(issue.createdAt).toLocaleDateString()}</div>
@@ -119,7 +143,7 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
               </div>
               ${issue.status === 'in_progress' || issue.status === 'resolved' ? `
                 <div style="display:flex;align-items:center;gap:var(--space-3);">
-                  <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-400);flex-shrink:0;"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:var(--amber-500);flex-shrink:0;"></div>
                   <div>
                     <div style="font-size:var(--font-sm);font-weight:500;">In Progress</div>
                     <div style="font-size:var(--font-xs);color:var(--text-tertiary);">Being addressed</div>
@@ -128,7 +152,7 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
               `: ''}
               ${issue.status === 'resolved' ? `
                 <div style="display:flex;align-items:center;gap:var(--space-3);">
-                  <div style="width:8px;height:8px;border-radius:50%;background:var(--emerald-400);flex-shrink:0;"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:var(--emerald-500);flex-shrink:0;"></div>
                   <div>
                     <div style="font-size:var(--font-sm);font-weight:500;">Resolved</div>
                     <div style="font-size:var(--font-xs);color:var(--text-tertiary);">Issue has been fixed</div>
@@ -138,8 +162,8 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
             </div>
           </div>
 
-          <!-- Status Update (only for author) -->
-          ${isAuthor ? `
+          <!-- Status Update (only for author or official) -->
+          ${canUpdate ? `
             <div class="detail-info-card">
               <h3><i data-lucide="settings" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> Update Status</h3>
               <select class="input-field" id="detail-status-select" style="cursor:pointer;">
@@ -179,7 +203,7 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
       const icon = upvoteBtn.querySelector('.upvote-icon');
       icon.style.animation = 'none';
       requestAnimationFrame(() => {
-        icon.style.animation = 'bounce-up 400ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+        icon.style.animation = 'bounce-up 300ms ease';
       });
     }
   });
@@ -196,8 +220,8 @@ export function createIssueDetail(issueId, onBack, onAuthRequired) {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(`${issue.description}\n\n📍 ${issue.location?.address || ''}`);
-        showToast({ type: 'success', title: 'Copied!', message: 'Issue details copied to clipboard.' });
+        await navigator.clipboard.writeText(`${issue.description}\n\n${issue.location?.address || ''}`);
+        showToast({ type: 'success', title: 'Copied', message: 'Issue details copied to clipboard.' });
       }
     } catch {
       // User cancelled share
@@ -242,15 +266,15 @@ function initDetailMap(container, issue) {
       zoomControl: false,
     }).setView([lat, lng], 15);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap contributors, © CARTO',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors, &copy; CARTO',
       maxZoom: 19,
     }).addTo(map);
 
     L.circleMarker([lat, lng], {
       radius: 8,
-      fillColor: '#6366F1',
-      color: '#818CF8',
+      fillColor: '#1B3A5C',
+      color: '#4777A7',
       weight: 2,
       opacity: 1,
       fillOpacity: 0.8,

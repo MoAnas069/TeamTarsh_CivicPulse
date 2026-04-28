@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Animations
+   Government Portal Theme — Subtle & Professional
    ============================================ */
 
 @keyframes fade-in {
@@ -15,7 +16,7 @@
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -25,12 +26,12 @@
 
 @keyframes slide-down {
   from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
     opacity: 1;
     transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px);
   }
 }
 
@@ -58,19 +59,8 @@
 
 @keyframes bounce-up {
   0% { transform: scale(1); }
-  30% { transform: scale(1.3) translateY(-4px); }
-  50% { transform: scale(0.9); }
-  70% { transform: scale(1.05); }
+  50% { transform: scale(1.15) translateY(-2px); }
   100% { transform: scale(1); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.25), 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(99, 102, 241, 0.45), 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  }
 }
 
 @keyframes shimmer {
@@ -83,37 +73,15 @@
   to { width: 0%; }
 }
 
-@keyframes count-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-@keyframes confetti-fall {
-  0% {
-    opacity: 1;
-    transform: translateY(0) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(100vh) rotate(720deg);
-  }
-}
-
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -121,61 +89,41 @@
   }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
 /* ---- Animation Utilities ---- */
 .animate-fade-in {
-  animation: fade-in 400ms ease-out;
+  animation: fade-in 300ms ease;
 }
 
 .animate-slide-up {
-  animation: slide-up 400ms ease-out;
+  animation: slide-up 300ms ease;
 }
 
 .animate-scale-in {
-  animation: scale-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: scale-in 250ms ease;
 }
 
 /* ---- Stagger Children ---- */
 .stagger-children > * {
-  animation: slide-up 400ms ease-out both;
+  animation: slide-up 300ms ease both;
 }
 
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 360ms; }
-.stagger-children > *:nth-child(8) { animation-delay: 420ms; }
-.stagger-children > *:nth-child(9) { animation-delay: 480ms; }
-.stagger-children > *:nth-child(10) { animation-delay: 540ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 450ms; }
 
 /* ---- Spinner ---- */
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--gray-200);
   border-top-color: var(--primary-500);
   border-radius: var(--radius-full);
   animation: spin 600ms linear infinite;
-}
-
-/* ---- Confetti ---- */
-.confetti-piece {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  top: -10px;
-  animation: confetti-fall 3s ease-in forwards;
-  z-index: var(--z-toast);
-  pointer-events: none;
 }

@@ -124,7 +124,7 @@ export function seedNotifications() {
     {
       id: 'notif-2',
       userId: 'demo-user-1',
-      message: 'Your report "Broken playground equipment" has been Resolved! 🎉',
+      message: 'Your report "Broken playground equipment" has been Resolved.',
       issueId: 'seed-5',
       read: true,
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),

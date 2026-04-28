@@ -1,11 +1,13 @@
 /* ============================================
    CivicPulse — Issue Card Component
+   Government Portal Theme
    ============================================ */
 
 import { getCategoryByName } from '../data/categories.js';
 import { hasUpvoted, upvoteIssue, removeUpvote } from '../data/store.js';
 import { getCommentCount } from '../data/comments.js';
 import { getDepartmentForCategory } from '../data/departments.js';
+import { getUserById } from '../data/auth.js';
 import { timeAgo, truncate, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
 
 /**
@@ -27,20 +29,32 @@ export function createIssueCard(issue, onSelect) {
   // Generate a placeholder gradient for issues without images
   const imageHtml = issue.imageUrl
     ? `<img class="issue-card-image" src="${issue.imageUrl}" alt="${escapeHtml(issue.description.substring(0, 50))}" loading="lazy" />`
-    : `<div class="issue-card-image" style="background: linear-gradient(135deg, ${cat.bgColor}, ${cat.borderColor}); display: flex; align-items: center; justify-content: center; font-size: 3rem;">${cat.emoji}</div>`;
+    : `<div class="issue-card-image" style="background: ${cat.bgColor}; display: flex; align-items: center; justify-content: center;"><i data-lucide="${cat.icon}" style="width:48px;height:48px;color:${cat.color};opacity:0.6;"></i></div>`;
+
+  const assignee = issue.assignedTo ? getUserById(issue.assignedTo) : null;
+  const assignedHtml = assignee ? `<span style="font-size:var(--font-xs);color:var(--primary-500);background:var(--primary-50);padding:2px 8px;border-radius:12px;margin-left:auto;font-weight:600;border:1px solid var(--primary-200);"><i data-lucide="user-check" style="width:12px;display:inline;"></i> Assg: ${escapeHtml(assignee.name.split(' ')[0])}</span>` : '';
+
+  let priorityHtml = '';
+  if (issue.severityScore >= 80) {
+    priorityHtml = `<span class="badge" style="background:var(--red-50);color:var(--red-600);border:1px solid rgba(239,68,68,0.25);"><i data-lucide="alert-triangle" style="width:12px;display:inline;"></i> CRITICAL</span>`;
+  } else if (issue.severityScore >= 60) {
+    priorityHtml = `<span class="badge" style="background:var(--amber-50);color:var(--amber-600);border:1px solid rgba(245,158,11,0.25);"><i data-lucide="alert-triangle" style="width:12px;display:inline;"></i> HIGH</span>`;
+  }
 
   card.innerHTML = `
     ${imageHtml}
     <div class="issue-card-body">
-      <div class="issue-card-top" style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+      <div class="issue-card-top" style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center;">
         <span class="badge" style="background:${cat.bgColor};color:${cat.color};border:1px solid ${cat.borderColor};">
-          ${cat.emoji} ${cat.name}
+          <i data-lucide="${cat.icon}" style="width:12px;height:12px;display:inline;"></i> ${cat.name}
         </span>
-        <span class="badge" style="background:var(--bg-surface-hover);color:var(--text-secondary);border:1px solid var(--border-color);">
+        <span class="badge" style="background:var(--gray-50);color:var(--text-secondary);border:1px solid var(--border-color);">
           <i data-lucide="building-2" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-right:4px;"></i>
           ${getDepartmentForCategory(issue.category)}
         </span>
+        ${priorityHtml}
         <span class="badge ${getStatusClass(issue.status)}">${formatStatus(issue.status)}</span>
+        ${assignedHtml}
       </div>
 
       <p class="issue-card-description">${escapeHtml(truncate(issue.description, 140))}</p>
@@ -93,11 +107,11 @@ export function createIssueCard(issue, onSelect) {
       const count = upvoteBtn.querySelector('.upvote-count');
       count.textContent = parseInt(count.textContent) + 1;
 
-      // Bounce animation
+      // Subtle animation
       const icon = upvoteBtn.querySelector('.upvote-icon');
       icon.style.animation = 'none';
       requestAnimationFrame(() => {
-        icon.style.animation = 'bounce-up 400ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+        icon.style.animation = 'bounce-up 300ms ease';
       });
     }
   });

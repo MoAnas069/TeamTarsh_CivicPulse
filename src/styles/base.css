@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Base & Reset Styles
+   Government Portal Theme
    ============================================ */
 
 *, *::before, *::after {
@@ -19,7 +20,7 @@ body {
   font-size: var(--font-base);
   line-height: var(--leading-normal);
   color: var(--text-primary);
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -32,24 +33,25 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--gray-100);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--slate-600);
+  background: var(--gray-300);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-500);
+  background: var(--gray-400);
 }
 
 /* ---- Links ---- */
 a {
-  color: var(--primary-400);
+  color: var(--primary-500);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 a:hover {
-  color: var(--primary-300);
+  color: var(--primary-700);
+  text-decoration: underline;
 }
 
 /* ---- Images ---- */
@@ -118,10 +120,8 @@ ul, ol {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary-400), var(--primary-300), var(--emerald-400));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary-500);
+  font-weight: 700;
 }
 
 .text-center { text-align: center; }

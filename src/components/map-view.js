@@ -1,17 +1,13 @@
 /* ============================================
    CivicPulse — Map View Component
    Full-screen Leaflet map with issue markers
+   Government Portal Theme
    ============================================ */
 
 import { getIssues } from '../data/store.js';
 import { getCategoryByName } from '../data/categories.js';
 import { truncate, escapeHtml } from '../utils/helpers.js';
 
-/**
- * Create the full map view
- * @param {function} onSelectIssue - callback when issue marker is clicked
- * @param {function} onBackToFeed - callback to return to feed view
- */
 export function createMapView(onSelectIssue, onBackToFeed) {
   const container = document.createElement('div');
   container.className = 'map-view-container';
@@ -31,7 +27,6 @@ export function createMapView(onSelectIssue, onBackToFeed) {
 
   container.querySelector('#map-back-btn').addEventListener('click', onBackToFeed);
 
-  // Init map after mount
   requestAnimationFrame(() => {
     setTimeout(() => initFullMap(container, onSelectIssue), 100);
   });
@@ -45,25 +40,20 @@ function initFullMap(container, onSelectIssue) {
 
   try {
     const issues = getIssues();
-
-    // Center on first issue or default
     const defaultCenter = issues.length > 0
       ? [issues[0].location?.lat || 40.7128, issues[0].location?.lng || -74.006]
       : [40.7128, -74.006];
 
     const map = L.map(mapEl).setView(defaultCenter, 13);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/">CARTO</a>',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>',
       maxZoom: 19,
     }).addTo(map);
 
-    // Add markers
     issues.forEach(issue => {
       if (!issue.location?.lat || !issue.location?.lng) return;
-
       const cat = getCategoryByName(issue.category);
-
       const marker = L.circleMarker([issue.location.lat, issue.location.lng], {
         radius: 10,
         fillColor: cat.color,
@@ -73,40 +63,32 @@ function initFullMap(container, onSelectIssue) {
         fillOpacity: 0.5,
       }).addTo(map);
 
-      // Popup
       marker.bindPopup(`
-        <div style="font-family:Inter,sans-serif;min-width:200px;max-width:280px;">
-          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">
-            ${cat.emoji} ${escapeHtml(cat.name)}
+        <div style="font-family:'Source Sans 3',sans-serif;min-width:200px;max-width:280px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;color:${cat.color};">
+            ${escapeHtml(cat.name)}
           </div>
-          <p style="font-size:13px;color:#475569;line-height:1.4;margin:0 0 8px 0;">
+          <p style="font-size:13px;color:#5A6474;line-height:1.4;margin:0 0 8px 0;">
             ${escapeHtml(truncate(issue.description, 100))}
           </p>
-          <div style="font-size:11px;color:#94A3B8;">
-            📍 ${escapeHtml(truncate(issue.location?.address || '', 50))}
+          <div style="font-size:11px;color:#8B95A5;">
+            ${escapeHtml(truncate(issue.location?.address || '', 50))}
           </div>
-          <div style="font-size:11px;color:#94A3B8;margin-top:4px;">
-            👍 ${issue.upvotes || 0} upvotes
+          <div style="font-size:11px;color:#8B95A5;margin-top:4px;">
+            ${issue.upvotes || 0} upvotes
           </div>
         </div>
-      `, {
-        className: 'civic-popup',
-      });
+      `, { className: 'civic-popup' });
 
       marker.on('click', () => {
-        if (onSelectIssue) {
-          // Open popup first, allow user to click through
-          marker.openPopup();
-        }
+        if (onSelectIssue) marker.openPopup();
       });
     });
 
-    // Fit bounds if multiple issues
     if (issues.length > 1) {
-      const validIssues = issues.filter(i => i.location?.lat && i.location?.lng);
-      if (validIssues.length > 1) {
-        const bounds = L.latLngBounds(validIssues.map(i => [i.location.lat, i.location.lng]));
-        map.fitBounds(bounds, { padding: [50, 50] });
+      const valid = issues.filter(i => i.location?.lat && i.location?.lng);
+      if (valid.length > 1) {
+        map.fitBounds(L.latLngBounds(valid.map(i => [i.location.lat, i.location.lng])), { padding: [50, 50] });
       }
     }
   } catch (e) {

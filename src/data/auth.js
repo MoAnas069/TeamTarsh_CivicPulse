@@ -70,7 +70,7 @@ export function getInitials(name) {
  * Register a new user
  * Returns { success, user?, error? }
  */
-export async function register(name, email, password) {
+export async function register(name, email, password, role = 'citizen') {
   const trimmedName = name.trim();
   const trimmedEmail = email.trim().toLowerCase();
 
@@ -85,6 +85,10 @@ export async function register(name, email, password) {
     return { success: false, error: 'Password must be at least 6 characters.' };
   }
 
+  // Validate role
+  const validRoles = ['citizen', 'official'];
+  const assignedRole = validRoles.includes(role) ? role : 'citizen';
+
   const users = getUsers();
 
   // Check if email already exists
@@ -98,6 +102,7 @@ export async function register(name, email, password) {
     name: trimmedName,
     email: trimmedEmail,
     passwordHash,
+    role: assignedRole,
     avatarColor: getAvatarColor(trimmedEmail),
     createdAt: new Date().toISOString(),
   };
@@ -210,6 +215,7 @@ function sanitizeUser(user) {
     id: user.id,
     name: user.name,
     email: user.email,
+    role: user.role || 'citizen',
     avatarColor: user.avatarColor || getAvatarColor(user.email),
     createdAt: user.createdAt,
   };
@@ -236,17 +242,47 @@ function notifyAuthChange() {
  */
 export async function seedDemoUser() {
   const users = getUsers();
-  if (users.length > 0) return;
+  let updated = false;
 
-  const passwordHash = await hashPassword('demo123');
-  const demoUser = {
-    id: 'demo-user-1',
-    name: 'Alex Rivera',
-    email: 'alex@demo.com',
-    passwordHash,
-    avatarColor: '#6366F1',
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-  };
+  // Seed citizen demo user
+  if (!users.find(u => u.id === 'demo-user-1')) {
+    const demoUser = {
+      id: 'demo-user-1',
+      name: 'Alex Rivera',
+      email: 'alex@demo.com',
+      passwordHash: await hashPassword('demo123'),
+      role: 'citizen',
+      avatarColor: '#6366F1',
+      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+    users.push(demoUser);
+    updated = true;
+  }
 
-  saveUsers([demoUser]);
+  // Seed or update official demo user
+  const existingOfficial = users.find(u => u.id === 'official-1');
+  if (existingOfficial) {
+    // Update existing official to latest credentials and ensure role is set
+    existingOfficial.name = 'Mayor Johnson';
+    existingOfficial.email = 'mayor@cityhall.gov';
+    existingOfficial.passwordHash = await hashPassword('gov2024');
+    existingOfficial.role = 'official';
+    updated = true;
+  } else {
+    const officialUser = {
+      id: 'official-1',
+      name: 'Mayor Johnson',
+      email: 'mayor@cityhall.gov',
+      passwordHash: await hashPassword('gov2024'),
+      role: 'official',
+      avatarColor: '#10B981',
+      createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+    users.push(officialUser);
+    updated = true;
+  }
+
+  if (updated) {
+    saveUsers(users);
+  }
 }

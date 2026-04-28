@@ -1,6 +1,7 @@
 /* ============================================
    CivicPulse — Report Issue Modal
-   Multi-step form: Image → Location → Description → Review
+   Multi-step form: Image -> Location -> Description -> Review
+   Government Portal Theme
    ============================================ */
 
 import { addIssue } from '../data/store.js';
@@ -8,7 +9,7 @@ import { CATEGORIES, getCategoryByName } from '../data/categories.js';
 import { categorize } from '../data/ai-categorizer.js';
 import { getCurrentPosition, reverseGeocode, searchLocation } from '../utils/geolocation.js';
 import { compressImage, validateImage } from '../utils/image.js';
-import { debounce, escapeHtml, createConfetti } from '../utils/helpers.js';
+import { debounce, escapeHtml } from '../utils/helpers.js';
 import { showToast } from './toast.js';
 
 /**
@@ -49,8 +50,8 @@ export function openReportModal(onComplete) {
   document.addEventListener('keydown', escHandler);
 
   function close() {
-    backdrop.style.animation = 'fade-out 200ms ease-in forwards';
-    modal.style.animation = 'slide-down 200ms ease-in forwards';
+    backdrop.style.animation = 'fade-out 200ms ease forwards';
+    modal.style.animation = 'slide-down 200ms ease forwards';
     setTimeout(() => {
       backdrop.remove();
       document.removeEventListener('keydown', escHandler);
@@ -72,7 +73,7 @@ export function openReportModal(onComplete) {
   function renderImageStep() {
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>📸 Add a Photo</h2>
+        <h2><i data-lucide="image" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--primary-500);"></i> Add a Photo</h2>
         <button class="btn-icon btn-ghost" id="modal-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -99,7 +100,7 @@ export function openReportModal(onComplete) {
         </div>
         <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none;" />
         ${formData.imageUrl ? `
-          <button class="btn btn-ghost btn-sm" id="remove-image" style="margin-top:var(--space-2);color:var(--red-400);">
+          <button class="btn btn-ghost btn-sm" id="remove-image" style="margin-top:var(--space-2);color:var(--red-500);">
             <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Remove photo
           </button>
         ` : ''}
@@ -190,7 +191,7 @@ export function openReportModal(onComplete) {
 
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>📍 Set Location</h2>
+        <h2><i data-lucide="map-pin" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--primary-500);"></i> Set Location</h2>
         <button class="btn-icon btn-ghost" id="modal-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -293,9 +294,11 @@ export function openReportModal(onComplete) {
       resultsDiv.style.display = 'block';
       resultsDiv.innerHTML = results.map((r, i) => `
         <div class="search-result-item" data-index="${i}" style="padding:var(--space-3) var(--space-4);background:var(--bg-surface);border:1px solid var(--border-color);cursor:pointer;font-size:var(--font-sm);color:var(--text-secondary);${i === 0 ? 'border-radius:var(--radius-md) var(--radius-md) 0 0;' : ''}${i === results.length - 1 ? 'border-radius:0 0 var(--radius-md) var(--radius-md);' : ''}">
-          📍 ${escapeHtml(r.address.substring(0, 80))}
+          <i data-lucide="map-pin" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-right:4px;color:var(--text-tertiary);"></i> ${escapeHtml(r.address.substring(0, 80))}
         </div>
       `).join('');
+
+      if (window.lucide) window.lucide.createIcons({ nodes: [resultsDiv] });
 
       resultsDiv.querySelectorAll('.search-result-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -344,15 +347,15 @@ export function openReportModal(onComplete) {
               const map = L.map(mapEl, { scrollWheelZoom: false, zoomControl: false })
                 .setView([formData.location.lat, formData.location.lng], 15);
 
-              L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OSM, © CARTO',
+              L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OSM, &copy; CARTO',
                 maxZoom: 19,
               }).addTo(map);
 
               L.circleMarker([formData.location.lat, formData.location.lng], {
                 radius: 8,
-                fillColor: '#6366F1',
-                color: '#818CF8',
+                fillColor: '#1B3A5C',
+                color: '#4777A7',
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 0.8,
@@ -383,7 +386,7 @@ export function openReportModal(onComplete) {
 
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>✍️ Describe the Issue</h2>
+        <h2><i data-lucide="pen-line" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--primary-500);"></i> Describe the Issue</h2>
         <button class="btn-icon btn-ghost" id="modal-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -401,7 +404,7 @@ export function openReportModal(onComplete) {
           <label class="input-label">What's the issue? *</label>
           <textarea class="input-field" id="description-input" placeholder="Describe the civic issue in detail. For example: 'Large pothole on Main Street near the park entrance, about 2 feet wide...'" rows="4">${escapeHtml(formData.description)}</textarea>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="text-xs" style="color:var(--text-tertiary);">Be specific — mention size, location details, urgency</span>
+            <span class="text-xs" style="color:var(--text-tertiary);">Be specific -- mention size, location details, urgency</span>
             <span class="text-xs" id="char-count" style="color:var(--text-tertiary);">${formData.description.length}/500</span>
           </div>
         </div>
@@ -409,9 +412,9 @@ export function openReportModal(onComplete) {
         <!-- AI Category -->
         ${selectedCat ? `
           <div class="ai-category animate-scale-in">
-            <span class="ai-icon">${selectedCat.emoji}</span>
+            <i data-lucide="${selectedCat.icon}" class="ai-icon" style="width:20px;height:20px;color:${selectedCat.color};"></i>
             <div>
-              <div class="ai-label">🤖 AI Detected Category</div>
+              <div class="ai-label"><i data-lucide="cpu" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-right:4px;"></i> AI Detected Category</div>
               <div class="ai-value">${selectedCat.name}</div>
             </div>
             <span class="ai-confidence">${Math.round(formData.categoryConfidence * 100)}%</span>
@@ -424,7 +427,7 @@ export function openReportModal(onComplete) {
           <select class="input-field" id="category-select" style="cursor:pointer;">
             <option value="">Select a category...</option>
             ${CATEGORIES.map(c => `
-              <option value="${c.name}" ${formData.category === c.name ? 'selected' : ''}>${c.emoji} ${c.name}</option>
+              <option value="${c.name}" ${formData.category === c.name ? 'selected' : ''}>${c.name}</option>
             `).join('')}
           </select>
         </div>
@@ -467,9 +470,11 @@ export function openReportModal(onComplete) {
         const cat = getCategoryByName(result.category);
         const aiDiv = modal.querySelector('.ai-category');
         if (aiDiv) {
-          aiDiv.querySelector('.ai-icon').textContent = cat.emoji;
+          const aiIcon = aiDiv.querySelector('.ai-icon');
+          if (aiIcon) aiIcon.setAttribute('data-lucide', cat.icon);
           aiDiv.querySelector('.ai-value').textContent = cat.name;
           aiDiv.querySelector('.ai-confidence').textContent = `${Math.round(result.confidence * 100)}%`;
+          if (window.lucide) window.lucide.createIcons({ nodes: [aiDiv] });
         } else {
           // Rebuild step to show AI category
           renderStep();
@@ -537,7 +542,7 @@ export function openReportModal(onComplete) {
 
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>✅ Review & Submit</h2>
+        <h2><i data-lucide="check-circle" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--teal-500);"></i> Review & Submit</h2>
         <button class="btn-icon btn-ghost" id="modal-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -555,12 +560,12 @@ export function openReportModal(onComplete) {
         <div class="card" style="cursor:default;">
           ${formData.imageUrl
             ? `<img src="${formData.imageUrl}" style="width:100%;aspect-ratio:16/10;object-fit:cover;" alt="Issue preview" />`
-            : `<div style="width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,${cat.bgColor},${cat.borderColor});display:flex;align-items:center;justify-content:center;font-size:3rem;">${cat.emoji}</div>`
+            : `<div style="width:100%;aspect-ratio:16/10;background:${cat.bgColor};display:flex;align-items:center;justify-content:center;"><i data-lucide="${cat.icon}" style="width:48px;height:48px;color:${cat.color};opacity:0.5;"></i></div>`
           }
 
           <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-3);">
             <span class="badge" style="background:${cat.bgColor};color:${cat.color};border:1px solid ${cat.borderColor};align-self:flex-start;">
-              ${cat.emoji} ${cat.name}
+              <i data-lucide="${cat.icon}" style="width:12px;height:12px;display:inline;"></i> ${cat.name}
               ${formData.categoryConfidence ? ` · ${Math.round(formData.categoryConfidence * 100)}%` : ''}
             </span>
 
@@ -583,7 +588,7 @@ export function openReportModal(onComplete) {
           <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
           Back
         </button>
-        <button class="btn btn-primary btn-glow" id="submit-btn">
+        <button class="btn btn-primary" id="submit-btn">
           <i data-lucide="send" style="width:16px;height:16px;"></i>
           Submit Report
         </button>
@@ -612,10 +617,9 @@ export function openReportModal(onComplete) {
         });
 
         close();
-        createConfetti();
         showToast({
           type: 'success',
-          title: 'Issue Reported! 🎉',
+          title: 'Issue Reported',
           message: 'Your report has been submitted and is now visible to the community.',
           duration: 5000,
         });

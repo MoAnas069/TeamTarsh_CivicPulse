@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Issue Feed Component
+   Government Portal Theme
    ============================================ */
 
 import { getIssues, subscribe } from '../data/store.js';
@@ -76,11 +77,11 @@ export function createIssueFeed({ onSelectIssue, onViewToggle }) {
         <div class="feed-categories">
           <div class="category-pills" id="category-pills">
             <button class="category-pill ${currentCategory === 'all' ? 'active' : ''}" data-category="all">
-              🏷️ All
+              <i data-lucide="tag" style="width:12px;height:12px;"></i> All
             </button>
             ${CATEGORIES.map(cat => `
               <button class="category-pill ${currentCategory === cat.name ? 'active' : ''}" data-category="${cat.name}">
-                ${cat.emoji} ${cat.name}
+                <i data-lucide="${cat.icon}" style="width:12px;height:12px;"></i> ${cat.name}
               </button>
             `).join('')}
           </div>
@@ -89,17 +90,23 @@ export function createIssueFeed({ onSelectIssue, onViewToggle }) {
         <!-- Status Filters -->
         <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-6);flex-wrap:wrap;">
           <button class="category-pill ${currentStatus === 'all' ? 'active' : ''}" data-status="all">All Status</button>
-          <button class="category-pill ${currentStatus === 'reported' ? 'active' : ''}" data-status="reported" style="${currentStatus === 'reported' ? 'background:rgba(239,68,68,0.12);color:var(--red-400);border-color:rgba(239,68,68,0.3);' : ''}">🔴 Reported</button>
-          <button class="category-pill ${currentStatus === 'in_progress' ? 'active' : ''}" data-status="in_progress" style="${currentStatus === 'in_progress' ? 'background:rgba(245,158,11,0.12);color:var(--amber-400);border-color:rgba(245,158,11,0.3);' : ''}">🟡 In Progress</button>
-          <button class="category-pill ${currentStatus === 'resolved' ? 'active' : ''}" data-status="resolved" style="${currentStatus === 'resolved' ? 'background:rgba(16,185,129,0.12);color:var(--emerald-400);border-color:rgba(16,185,129,0.3);' : ''}">🟢 Resolved</button>
+          <button class="category-pill ${currentStatus === 'reported' ? 'active' : ''}" data-status="reported" style="${currentStatus === 'reported' ? 'background:var(--red-50);color:var(--red-600);border-color:rgba(239,68,68,0.3);' : ''}">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red-500);"></span> Reported
+          </button>
+          <button class="category-pill ${currentStatus === 'in_progress' ? 'active' : ''}" data-status="in_progress" style="${currentStatus === 'in_progress' ? 'background:var(--amber-50);color:var(--amber-600);border-color:rgba(245,158,11,0.3);' : ''}">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--amber-500);"></span> In Progress
+          </button>
+          <button class="category-pill ${currentStatus === 'resolved' ? 'active' : ''}" data-status="resolved" style="${currentStatus === 'resolved' ? 'background:var(--emerald-50);color:var(--emerald-600);border-color:rgba(16,185,129,0.3);' : ''}">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--emerald-500);"></span> Resolved
+          </button>
         </div>
 
         <!-- Issue Grid -->
         <div class="feed-grid stagger-children" id="feed-grid">
           ${issues.length === 0 ? `
             <div class="empty-state" style="grid-column:1/-1;">
-              <div class="empty-state-icon animate-float">
-                <i data-lucide="search-x" style="width:36px;height:36px;"></i>
+              <div class="empty-state-icon">
+                <i data-lucide="search-x" style="width:28px;height:28px;"></i>
               </div>
               <h3>No issues found</h3>
               <p>Try adjusting your filters or be the first to report an issue in this category.</p>

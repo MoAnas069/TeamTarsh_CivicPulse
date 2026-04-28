@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Notification Panel Component
+   Government Portal Theme
    ============================================ */
 
 import { getCurrentUser } from '../data/auth.js';
@@ -35,7 +36,7 @@ export function createNotificationPanel(onNavigateToIssue) {
       <div class="notif-dropdown ${isOpen ? 'open' : ''}" id="notif-dropdown">
         <div class="notif-dropdown-header">
           <h4>Notifications</h4>
-          ${unread > 0 ? `<button class="btn btn-ghost btn-sm" id="mark-all-read" style="font-size:var(--font-xs);color:var(--primary-400);">Mark all read</button>` : ''}
+          ${unread > 0 ? `<button class="btn btn-ghost btn-sm" id="mark-all-read" style="font-size:var(--font-xs);color:var(--primary-500);">Mark all read</button>` : ''}
         </div>
         <div class="notif-list" id="notif-list">
           ${renderNotifList(user.id)}
@@ -94,7 +95,7 @@ export function createNotificationPanel(onNavigateToIssue) {
     if (notifications.length === 0) {
       return `
         <div class="notif-empty">
-          <span style="font-size:1.5rem;">🎉</span>
+          <i data-lucide="check-circle" style="width:24px;height:24px;color:var(--teal-500);"></i>
           <p>You're all caught up!</p>
         </div>
       `;

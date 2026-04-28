@@ -4,6 +4,7 @@
 
 import { getCurrentUser } from './auth.js';
 import { addNotification } from './notifications.js';
+import { calculatePriorityScore } from '../utils/priority-engine.js';
 
 const STORE_KEY = 'civicpulse_issues';
 const UPVOTES_KEY = 'civicpulse_upvoted';
@@ -53,8 +54,14 @@ export function addIssue(issue) {
     status: 'reported',
     userId: issue.userId || (currentUser ? currentUser.id : null),
     userName: issue.userName || (currentUser ? currentUser.name : 'Anonymous'),
+    assignedTo: null,
     createdAt: new Date().toISOString(),
   };
+  
+  const priority = calculatePriorityScore(newIssue);
+  newIssue.severityScore = priority.score;
+  newIssue.severityLabel = priority.label;
+
   issues.unshift(newIssue);
   saveIssues(issues);
   return newIssue;
@@ -71,6 +78,11 @@ export function upvoteIssue(id) {
   if (!issue) return false;
 
   issue.upvotes = (issue.upvotes || 0) + 1;
+  
+  const priority = calculatePriorityScore(issue);
+  issue.severityScore = priority.score;
+  issue.severityLabel = priority.label;
+
   saveIssues(issues);
 
   // Track upvoted issues
@@ -145,7 +157,7 @@ export function updateIssueStatus(id, status) {
   if (oldStatus !== status && issue.userId) {
     const statusLabels = { reported: 'Reported', in_progress: 'In Progress', resolved: 'Resolved' };
     const desc = issue.description.substring(0, 40);
-    const emoji = status === 'resolved' ? ' 🎉' : '';
+    const emoji = '';
     addNotification(
       issue.userId,
       `Your report "${desc}..." status changed to ${statusLabels[status]}.${emoji}`,
@@ -153,6 +165,19 @@ export function updateIssueStatus(id, status) {
     );
   }
 
+  return true;
+}
+
+/**
+ * Assign an issue to an official
+ */
+export function assignIssue(id, officialId) {
+  const issues = getIssues();
+  const issue = issues.find(i => i.id === id);
+  if (!issue) return false;
+
+  issue.assignedTo = officialId;
+  saveIssues(issues);
   return true;
 }
 
@@ -279,6 +304,13 @@ export function seedIfEmpty() {
       createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     },
   ];
+
+  seeds.forEach(s => {
+    const priority = calculatePriorityScore(s);
+    s.severityScore = priority.score;
+    s.severityLabel = priority.label;
+    s.assignedTo = null;
+  });
 
   localStorage.setItem(STORE_KEY, JSON.stringify(seeds));
 }

@@ -1,12 +1,13 @@
 /* ============================================
    CivicPulse — Header Component
+   Government Portal Theme
    ============================================ */
 
 import { getStats, subscribe } from '../data/store.js';
 import { getCurrentUser, getInitials, onAuthChange, logout } from '../data/auth.js';
 import { createNotificationPanel } from './notification-panel.js';
 
-export function createHeader({ onReportClick, onLoginClick, onProfileClick, onNavigateToIssue, onAnalyticsClick }) {
+export function createHeader({ onReportClick, onLoginClick, onProfileClick, onGovPanelClick, onNavigateToIssue, onAnalyticsClick }) {
   const header = document.createElement('header');
   header.className = 'header';
   header.id = 'app-header';
@@ -23,18 +24,24 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onNa
         <div class="header-actions" style="display:flex;align-items:center;gap:var(--space-4);">
           <div id="notif-mount"></div>
           <div class="profile-dropdown-container" style="position:relative;">
-            <button class="profile-avatar-btn" id="header-avatar" style="background:${user.avatarColor};width:32px;height:32px;border-radius:50%;border:none;color:white;font-weight:600;font-size:12px;cursor:pointer;">
+            <button class="profile-avatar-btn" id="header-avatar" style="background:${user.avatarColor};width:32px;height:32px;border-radius:50%;border:${user.role === 'official' ? '2px solid var(--teal-500)' : 'none'};color:white;font-weight:600;font-size:12px;cursor:pointer;">
               ${getInitials(user.name)}
             </button>
-            <div class="profile-dropdown" id="profile-dropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);min-width:200px;z-index:100;">
+            <div class="profile-dropdown" id="profile-dropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);min-width:220px;z-index:100;">
               <div style="padding:var(--space-3);border-bottom:1px solid var(--border-color);">
-                <div style="font-weight:500;">${user.name}</div>
+                <div style="font-weight:600;color:var(--text-primary);">${user.name}</div>
                 <div style="font-size:var(--font-xs);color:var(--text-tertiary);">${user.email}</div>
+                ${user.role === 'official' ? '<div style="margin-top:4px;"><span style="font-size:10px;background:var(--teal-50);color:var(--teal-600);padding:2px 8px;border-radius:10px;border:1px solid rgba(15,123,108,0.2);font-weight:600;display:inline-flex;align-items:center;gap:4px;"><i data-lucide="shield-check" style="width:10px;height:10px;"></i> Government Official</span></div>' : ''}
               </div>
-              <button class="dropdown-item" id="nav-profile" style="width:100%;text-align:left;padding:var(--space-2) var(--space-3);background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);">
+              ${user.role === 'official' ? `
+                <button class="dropdown-item" id="nav-gov-panel" style="width:100%;text-align:left;padding:var(--space-2) var(--space-3);background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);transition:background 0.15s;">
+                  <i data-lucide="shield" style="width:16px;height:16px;color:var(--teal-500);"></i> Gov Panel
+                </button>
+              ` : ''}
+              <button class="dropdown-item" id="nav-profile" style="width:100%;text-align:left;padding:var(--space-2) var(--space-3);background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);transition:background 0.15s;">
                 <i data-lucide="user" style="width:16px;height:16px;"></i> My Profile
               </button>
-              <button class="dropdown-item" id="nav-logout" style="width:100%;text-align:left;padding:var(--space-2) var(--space-3);background:transparent;border:none;color:var(--red-400);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);">
+              <button class="dropdown-item" id="nav-logout" style="width:100%;text-align:left;padding:var(--space-2) var(--space-3);background:transparent;border:none;color:var(--red-500);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);transition:background 0.15s;">
                 <i data-lucide="log-out" style="width:16px;height:16px;"></i> Sign Out
               </button>
             </div>
@@ -50,7 +57,9 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onNa
     header.innerHTML = `
       <div class="container header-inner">
         <a href="#" class="header-logo" id="header-logo">
-          <div class="header-logo-icon">🏛️</div>
+          <div class="header-logo-icon">
+            <img src="/images/logo-emblem.png" alt="CivicPulse" />
+          </div>
           <span>Civic<span class="text-gradient">Pulse</span></span>
         </a>
 
@@ -70,7 +79,7 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onNa
 
           ${authHtml}
 
-          <button class="btn btn-primary btn-sm btn-glow" id="header-report-btn">
+          <button class="btn btn-primary btn-sm" id="header-report-btn">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Report Issue
           </button>
@@ -125,6 +134,11 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onNa
         }
       });
     }
+
+    header.querySelector('#nav-gov-panel')?.addEventListener('click', () => {
+      if (dropdown) dropdown.style.display = 'none';
+      if (onGovPanelClick) onGovPanelClick();
+    });
 
     header.querySelector('#nav-profile')?.addEventListener('click', () => {
       if (dropdown) dropdown.style.display = 'none';

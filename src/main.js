@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Main Application Entry
+   Government Portal Theme
    ============================================ */
 
 // Styles
@@ -22,19 +23,23 @@ import { createMapView } from './components/map-view.js';
 import { openAuthModal } from './components/auth-modal.js';
 import { createProfilePage } from './components/profile-page.js';
 import { createAnalyticsDashboard } from './components/analytics-dashboard.js';
+import { createGovernmentPanel } from './components/government-panel.js';
 
-import { isLoggedIn, seedDemoUser } from './data/auth.js';
+import { isLoggedIn, getCurrentUser, seedDemoUser } from './data/auth.js';
 import { seedComments } from './data/comments.js';
 import { seedNotifications } from './data/notifications.js';
 
 // ---- Initialize ----
 const app = document.getElementById('app');
 
-// Seed demo data on first launch
-seedIfEmpty();
-seedDemoUser();
-seedComments();
-seedNotifications();
+// Boot sequence (async because seedDemoUser hashes passwords)
+async function boot() {
+  seedIfEmpty();
+  await seedDemoUser();
+  seedComments();
+  seedNotifications();
+  renderApp();
+}
 
 // Auth barrier wrapper
 function requireAuth(action) {
@@ -60,7 +65,6 @@ function renderApp() {
   const header = createHeader({
     onReportClick: () => requireAuth(() => {
       openReportModal(() => {
-        // After successful submission, ensure feed is showing
         if (currentView !== 'feed') {
           navigateTo('feed');
         }
@@ -68,6 +72,7 @@ function renderApp() {
     }),
     onLoginClick: () => openAuthModal(() => renderApp()),
     onProfileClick: () => navigateTo('profile'),
+    onGovPanelClick: () => navigateTo('gov-panel'),
     onAnalyticsClick: () => navigateTo('analytics'),
     onNavigateToIssue: (id) => navigateTo('detail', id),
   });
@@ -86,6 +91,9 @@ function renderApp() {
       break;
     case 'profile':
       renderProfileView();
+      break;
+    case 'gov-panel':
+      renderGovPanelView();
       break;
     case 'analytics':
       renderAnalyticsView();
@@ -159,6 +167,20 @@ function renderProfileView() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function renderGovPanelView() {
+  const user = getCurrentUser();
+  if (!user || user.role !== 'official') {
+    navigateTo('feed');
+    return;
+  }
+  const govPanel = createGovernmentPanel(
+    () => navigateTo('feed'),
+    (id) => navigateTo('detail', id)
+  );
+  app.appendChild(govPanel);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function renderAnalyticsView() {
   const dashboard = createAnalyticsDashboard();
   app.appendChild(dashboard);
@@ -172,44 +194,44 @@ function navigateTo(view, issueId) {
 }
 
 // ---- Boot ----
-renderApp();
+boot();
 
-// Add some polish — custom Leaflet popup styles
+// Leaflet popup styles for light theme
 const style = document.createElement('style');
 style.textContent = `
   .leaflet-popup-content-wrapper {
-    background: #1E293B !important;
-    color: #F8FAFC !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-    border: 1px solid rgba(148,163,184,0.1) !important;
+    background: #FFFFFF !important;
+    color: #1A1A2E !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+    border: 1px solid #D9DEE5 !important;
   }
   .leaflet-popup-tip {
-    background: #1E293B !important;
-    border: 1px solid rgba(148,163,184,0.1) !important;
+    background: #FFFFFF !important;
+    border: 1px solid #D9DEE5 !important;
   }
   .leaflet-popup-content {
     margin: 12px 16px !important;
-    color: #F8FAFC !important;
+    color: #1A1A2E !important;
   }
   .leaflet-popup-content p {
-    color: #94A3B8 !important;
+    color: #5A6474 !important;
   }
   .leaflet-popup-close-button {
-    color: #94A3B8 !important;
+    color: #8B95A5 !important;
   }
   .leaflet-popup-close-button:hover {
-    color: #F8FAFC !important;
+    color: #1A1A2E !important;
   }
   .leaflet-control-attribution {
-    background: rgba(15,23,42,0.8) !important;
-    color: #64748B !important;
+    background: rgba(255,255,255,0.9) !important;
+    color: #8B95A5 !important;
     font-size: 10px !important;
   }
   .leaflet-control-attribution a {
-    color: #818CF8 !important;
+    color: #1B3A5C !important;
   }
 `;
 document.head.appendChild(style);
 
-console.log('🏛️ CivicPulse initialized');
+console.log('CivicPulse initialized');

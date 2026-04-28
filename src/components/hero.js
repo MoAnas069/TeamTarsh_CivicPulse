@@ -1,5 +1,6 @@
 /* ============================================
    CivicPulse — Hero Component
+   Government Portal Theme
    ============================================ */
 
 import { getStats, subscribe } from '../data/store.js';
@@ -19,12 +20,12 @@ export function createHero({ onReportClick, onBrowseClick }) {
           Your City. <span class="text-gradient">Your Voice.</span>
         </h1>
         <p class="hero-subtitle animate-slide-up" style="animation-delay: 100ms">
-          Report civic issues, track their resolution, and help build a better community. 
+          Report civic issues, track their resolution, and help build a better community.
           Every report makes a difference.
         </p>
         <div class="hero-actions animate-slide-up" style="animation-delay: 200ms">
-          <button class="btn btn-primary btn-lg btn-glow" id="hero-report-btn">
-            <i data-lucide="camera" style="width:20px;height:20px;"></i>
+          <button class="btn btn-primary btn-lg" id="hero-report-btn">
+            <i data-lucide="file-plus" style="width:20px;height:20px;"></i>
             Report an Issue
           </button>
           <button class="btn btn-secondary btn-lg" id="hero-browse-btn">
@@ -32,6 +33,7 @@ export function createHero({ onReportClick, onBrowseClick }) {
             Browse Issues
           </button>
         </div>
+        <img src="/images/hero-banner.png" alt="Civic infrastructure illustration" class="hero-banner-img animate-slide-up" style="animation-delay: 300ms" />
       </div>
     `;
 
@@ -62,15 +64,15 @@ export function createStatsBar() {
           <div class="stat-label">Total Reports</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" data-target="${stats.reported}" id="stat-active" style="color: var(--red-400);">0</div>
+          <div class="stat-value" data-target="${stats.reported}" id="stat-active" style="color: var(--red-600);">0</div>
           <div class="stat-label">Active Issues</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" data-target="${stats.inProgress}" id="stat-progress" style="color: var(--amber-400);">0</div>
+          <div class="stat-value" data-target="${stats.inProgress}" id="stat-progress" style="color: var(--amber-600);">0</div>
           <div class="stat-label">In Progress</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" data-target="${stats.resolved}" id="stat-resolved" style="color: var(--emerald-400);">0</div>
+          <div class="stat-value" data-target="${stats.resolved}" id="stat-resolved" style="color: var(--emerald-600);">0</div>
           <div class="stat-label">Resolved</div>
         </div>
       </div>

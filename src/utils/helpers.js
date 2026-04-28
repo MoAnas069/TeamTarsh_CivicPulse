@@ -112,24 +112,8 @@ export function getStatusClass(status) {
 }
 
 /**
- * Create confetti animation
+ * Create confetti animation (disabled for government portal)
  */
 export function createConfetti() {
-  const colors = ['#6366F1', '#818CF8', '#10B981', '#34D399', '#FBBF24', '#F472B6'];
-  const container = document.body;
-
-  for (let i = 0; i < 50; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = `${Math.random() * 100}vw`;
-    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDelay = `${Math.random() * 0.5}s`;
-    piece.style.animationDuration = `${2 + Math.random() * 2}s`;
-    piece.style.width = `${6 + Math.random() * 8}px`;
-    piece.style.height = `${6 + Math.random() * 8}px`;
-    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    container.appendChild(piece);
-
-    setTimeout(() => piece.remove(), 4000);
-  }
+  // Confetti disabled in government portal theme
 }

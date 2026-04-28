@@ -1,6 +1,7 @@
 /* ============================================
    CivicPulse — Auth Modal Component
    Login / Register tabs
+   Government Portal Theme
    ============================================ */
 
 import { login, register } from '../data/auth.js';
@@ -37,8 +38,8 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
   document.addEventListener('keydown', escHandler);
 
   function close() {
-    backdrop.style.animation = 'fade-out 200ms ease-in forwards';
-    modal.style.animation = 'slide-down 200ms ease-in forwards';
+    backdrop.style.animation = 'fade-out 200ms ease forwards';
+    modal.style.animation = 'slide-down 200ms ease forwards';
     setTimeout(() => {
       backdrop.remove();
       document.removeEventListener('keydown', escHandler);
@@ -60,7 +61,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
   function renderLogin() {
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>👋 Welcome Back</h2>
+        <h2><i data-lucide="log-in" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--primary-500);"></i> Welcome Back</h2>
         <button class="btn-icon btn-ghost" id="auth-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -75,7 +76,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
         <form id="login-form" class="auth-form">
           <div class="input-group">
             <label class="input-label">Email</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="mail" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
               <input type="email" class="input-field" id="login-email" placeholder="you@example.com" required style="padding-left:36px;" />
             </div>
@@ -83,9 +84,9 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
           <div class="input-group">
             <label class="input-label">Password</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="lock" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
-              <input type="password" class="input-field" id="login-password" placeholder="••••••••" required style="padding-left:36px;" />
+              <input type="password" class="input-field" id="login-password" placeholder="Enter password" required style="padding-left:36px;" />
             </div>
           </div>
 
@@ -99,12 +100,15 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
         <div class="auth-footer">
           <span style="color:var(--text-tertiary);font-size:var(--font-sm);">Don't have an account?</span>
-          <button class="btn btn-ghost btn-sm" id="switch-to-register" style="color:var(--primary-400);">Create one</button>
+          <button class="btn btn-ghost btn-sm" id="switch-to-register" style="color:var(--primary-500);">Create one</button>
         </div>
 
         <div class="auth-demo-hint">
           <i data-lucide="info" style="width:14px;height:14px;flex-shrink:0;"></i>
-          <span>Demo account: <strong>alex@demo.com</strong> / <strong>demo123</strong></span>
+          <div style="line-height:1.5;">
+            <div>Citizen: <strong>alex@demo.com</strong> / <strong>demo123</strong></div>
+            <div>Official: <strong>mayor@cityhall.gov</strong> / <strong>gov2024</strong></div>
+          </div>
         </div>
       </div>
     `;
@@ -156,7 +160,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
   function renderRegister() {
     modal.innerHTML = `
       <div class="modal-header">
-        <h2>🚀 Create Account</h2>
+        <h2><i data-lucide="user-plus" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px;color:var(--primary-500);"></i> Create Account</h2>
         <button class="btn-icon btn-ghost" id="auth-close" aria-label="Close">
           <i data-lucide="x" style="width:20px;height:20px;"></i>
         </button>
@@ -171,7 +175,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
         <form id="register-form" class="auth-form">
           <div class="input-group">
             <label class="input-label">Full Name</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="user" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
               <input type="text" class="input-field" id="reg-name" placeholder="John Doe" required minlength="2" style="padding-left:36px;" />
             </div>
@@ -179,7 +183,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
           <div class="input-group">
             <label class="input-label">Email</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="mail" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
               <input type="email" class="input-field" id="reg-email" placeholder="you@example.com" required style="padding-left:36px;" />
             </div>
@@ -187,7 +191,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
           <div class="input-group">
             <label class="input-label">Password</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="lock" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
               <input type="password" class="input-field" id="reg-password" placeholder="Min. 6 characters" required minlength="6" style="padding-left:36px;" />
             </div>
@@ -195,9 +199,36 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
           <div class="input-group">
             <label class="input-label">Confirm Password</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon" style="position:relative;">
               <i data-lucide="lock" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
               <input type="password" class="input-field" id="reg-confirm" placeholder="Re-enter password" required style="padding-left:36px;" />
+            </div>
+          </div>
+
+          <!-- Government Employee Verification -->
+          <div style="margin-top:var(--space-2);background:var(--gray-50);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:var(--space-4);">
+            <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+              <input type="checkbox" id="reg-is-official" style="margin-top:3px;width:18px;height:18px;accent-color:var(--teal-500);cursor:pointer;flex-shrink:0;" />
+              <div>
+                <div style="font-weight:600;font-size:var(--font-sm);color:var(--text-primary);display:flex;align-items:center;gap:var(--space-2);">
+                  <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--teal-500);"></i>
+                  I am a government / municipal employee
+                </div>
+                <div style="font-size:var(--font-xs);color:var(--text-tertiary);margin-top:var(--space-1);line-height:1.4;">
+                  Check this if you are an authorized government official, municipal worker, or public authority representative. This grants access to the Analytics Hub and Government Panel.
+                </div>
+              </div>
+            </label>
+
+            <div id="gov-verification-fields" style="display:none;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border-color);">
+              <div class="input-group">
+                <label class="input-label">Government Employee ID / Verification Code</label>
+                <div class="input-with-icon" style="position:relative;">
+                  <i data-lucide="badge-check" style="width:16px;height:16px;color:var(--text-tertiary);position:absolute;left:12px;top:50%;transform:translateY(-50%);"></i>
+                  <input type="text" class="input-field" id="reg-gov-id" placeholder="e.g. GOV-2024-XXXX or department code" style="padding-left:36px;" />
+                </div>
+                <span style="font-size:var(--font-xs);color:var(--text-tertiary);">For demo purposes, any value will be accepted.</span>
+              </div>
             </div>
           </div>
 
@@ -211,7 +242,7 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
 
         <div class="auth-footer">
           <span style="color:var(--text-tertiary);font-size:var(--font-sm);">Already have an account?</span>
-          <button class="btn btn-ghost btn-sm" id="switch-to-login" style="color:var(--primary-400);">Sign in</button>
+          <button class="btn btn-ghost btn-sm" id="switch-to-login" style="color:var(--primary-500);">Sign in</button>
         </div>
       </div>
     `;
@@ -230,6 +261,15 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
       render();
     });
 
+    // Government employee toggle
+    const officialCheckbox = modal.querySelector('#reg-is-official');
+    const govFields = modal.querySelector('#gov-verification-fields');
+    if (officialCheckbox && govFields) {
+      officialCheckbox.addEventListener('change', () => {
+        govFields.style.display = officialCheckbox.checked ? 'block' : 'none';
+      });
+    }
+
     // Register form
     modal.querySelector('#register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -237,6 +277,8 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
       const email = modal.querySelector('#reg-email').value;
       const password = modal.querySelector('#reg-password').value;
       const confirm = modal.querySelector('#reg-confirm').value;
+      const isOfficial = modal.querySelector('#reg-is-official')?.checked || false;
+      const govId = modal.querySelector('#reg-gov-id')?.value?.trim() || '';
       const errorDiv = modal.querySelector('#register-error');
 
       if (password !== confirm) {
@@ -245,15 +287,27 @@ export function openAuthModal(onSuccess, initialTab = 'login') {
         return;
       }
 
+      // If claiming official role, require a gov ID
+      if (isOfficial && !govId) {
+        errorDiv.textContent = 'Please enter your Government Employee ID or verification code.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const role = isOfficial ? 'official' : 'citizen';
+
       const submitBtn = modal.querySelector('[type="submit"]');
       submitBtn.innerHTML = '<span class="spinner" style="width:16px;height:16px;"></span> Creating account...';
       submitBtn.disabled = true;
 
-      const result = await register(name, email, password);
+      const result = await register(name, email, password, role);
 
       if (result.success) {
         close();
-        showToast({ type: 'success', title: `Welcome, ${result.user.name}! 🎉`, message: 'Your account has been created.' });
+        const roleMsg = role === 'official'
+          ? 'Your government account has been created. You now have access to the Analytics Hub and Government Panel.'
+          : 'Your account has been created.';
+        showToast({ type: 'success', title: `Welcome, ${result.user.name}!`, message: roleMsg });
         if (onSuccess) onSuccess(result.user);
       } else {
         errorDiv.textContent = result.error;
