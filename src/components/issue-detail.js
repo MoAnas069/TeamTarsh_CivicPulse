@@ -4,6 +4,8 @@
 
 import { getIssueById, hasUpvoted, upvoteIssue, removeUpvote, updateIssueStatus } from '../data/store.js';
 import { getCategoryByName } from '../data/categories.js';
+import { getCurrentUser } from '../data/auth.js';
+import { createCommentSection } from './comment-section.js';
 import { timeAgo, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
 import { showToast } from './toast.js';
 
@@ -11,8 +13,9 @@ import { showToast } from './toast.js';
  * Create the issue detail view
  * @param {string} issueId
  * @param {function} onBack - callback to return to feed
+ * @param {function} onAuthRequired - callback to trigger login
  */
-export function createIssueDetail(issueId, onBack) {
+export function createIssueDetail(issueId, onBack, onAuthRequired) {
   const issue = getIssueById(issueId);
   if (!issue) {
     const el = document.createElement('div');
@@ -26,6 +29,8 @@ export function createIssueDetail(issueId, onBack) {
 
   const cat = getCategoryByName(issue.category);
   const voted = hasUpvoted(issue.id);
+  const user = getCurrentUser();
+  const isAuthor = user && user.id === issue.userId;
 
   const imageHtml = issue.imageUrl
     ? `<img class="detail-image" src="${issue.imageUrl}" alt="${escapeHtml(issue.description.substring(0, 50))}" />`
@@ -62,6 +67,10 @@ export function createIssueDetail(issueId, onBack) {
             ` : ''}
           </div>
 
+          <div style="font-size:var(--font-sm);color:var(--text-tertiary);margin-bottom:var(--space-4);">
+            Reported by <strong style="color:var(--text-secondary);">${escapeHtml(issue.userName || 'Anonymous')}</strong>
+          </div>
+
           <p class="detail-description">${escapeHtml(issue.description)}</p>
 
           <!-- Actions -->
@@ -77,6 +86,8 @@ export function createIssueDetail(issueId, onBack) {
               Share
             </button>
           </div>
+          
+          <div id="comment-section-mount" style="margin-top:var(--space-8);"></div>
         </div>
 
         <!-- Sidebar -->
@@ -122,15 +133,17 @@ export function createIssueDetail(issueId, onBack) {
             </div>
           </div>
 
-          <!-- Status Update (demo) -->
-          <div class="detail-info-card">
-            <h3><i data-lucide="settings" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> Update Status</h3>
-            <select class="input-field" id="detail-status-select" style="cursor:pointer;">
-              <option value="reported" ${issue.status === 'reported' ? 'selected' : ''}>Reported</option>
-              <option value="in_progress" ${issue.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-              <option value="resolved" ${issue.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-            </select>
-          </div>
+          <!-- Status Update (only for author) -->
+          ${isAuthor ? `
+            <div class="detail-info-card">
+              <h3><i data-lucide="settings" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> Update Status</h3>
+              <select class="input-field" id="detail-status-select" style="cursor:pointer;">
+                <option value="reported" ${issue.status === 'reported' ? 'selected' : ''}>Reported</option>
+                <option value="in_progress" ${issue.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                <option value="resolved" ${issue.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+              </select>
+            </div>
+          ` : ''}
         </div>
       </div>
     </div>
@@ -187,10 +200,20 @@ export function createIssueDetail(issueId, onBack) {
   });
 
   // Event: Status update
-  container.querySelector('#detail-status-select').addEventListener('change', (e) => {
-    updateIssueStatus(issue.id, e.target.value);
-    showToast({ type: 'success', title: 'Status Updated', message: `Issue status changed to "${formatStatus(e.target.value)}".` });
-  });
+  const statusSelect = container.querySelector('#detail-status-select');
+  if (statusSelect) {
+    statusSelect.addEventListener('change', (e) => {
+      updateIssueStatus(issue.id, e.target.value);
+      showToast({ type: 'success', title: 'Status Updated', message: `Issue status changed to "${formatStatus(e.target.value)}".` });
+    });
+  }
+
+  // Mount comment section
+  const commentMount = container.querySelector('#comment-section-mount');
+  if (commentMount) {
+    const commentSection = createCommentSection(issue.id, onAuthRequired);
+    commentMount.appendChild(commentSection);
+  }
 
   // Initialize map after mount
   requestAnimationFrame(() => {

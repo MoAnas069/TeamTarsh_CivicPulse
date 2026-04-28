@@ -2,6 +2,9 @@
    CivicPulse — Data Store (localStorage)
    ============================================ */
 
+import { getCurrentUser } from './auth.js';
+import { addNotification } from './notifications.js';
+
 const STORE_KEY = 'civicpulse_issues';
 const UPVOTES_KEY = 'civicpulse_upvoted';
 const listeners = new Set();
@@ -38,6 +41,7 @@ export function getIssueById(id) {
  */
 export function addIssue(issue) {
   const issues = getIssues();
+  const currentUser = getCurrentUser();
   const newIssue = {
     id: issue.id || crypto.randomUUID(),
     description: issue.description,
@@ -47,6 +51,8 @@ export function addIssue(issue) {
     categoryConfidence: issue.categoryConfidence || 0,
     upvotes: 0,
     status: 'reported',
+    userId: issue.userId || (currentUser ? currentUser.id : null),
+    userName: issue.userName || (currentUser ? currentUser.name : 'Anonymous'),
     createdAt: new Date().toISOString(),
   };
   issues.unshift(newIssue);
@@ -124,9 +130,30 @@ export function updateIssueStatus(id, status) {
   const issue = issues.find(i => i.id === id);
   if (!issue) return false;
 
+  const oldStatus = issue.status;
   issue.status = status;
   saveIssues(issues);
+
+  // Send notification to issue author on status change
+  if (oldStatus !== status && issue.userId) {
+    const statusLabels = { reported: 'Reported', in_progress: 'In Progress', resolved: 'Resolved' };
+    const desc = issue.description.substring(0, 40);
+    const emoji = status === 'resolved' ? ' 🎉' : '';
+    addNotification(
+      issue.userId,
+      `Your report "${desc}..." status changed to ${statusLabels[status]}.${emoji}`,
+      id
+    );
+  }
+
   return true;
+}
+
+/**
+ * Get issues reported by a specific user
+ */
+export function getIssuesByUser(userId) {
+  return getIssues().filter(i => i.userId === userId);
 }
 
 /**
@@ -174,6 +201,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.95,
       upvotes: 24,
       status: 'in_progress',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
@@ -185,6 +214,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.92,
       upvotes: 18,
       status: 'reported',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
@@ -196,6 +227,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.88,
       upvotes: 31,
       status: 'reported',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
@@ -207,6 +240,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.91,
       upvotes: 42,
       status: 'reported',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
@@ -218,6 +253,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.85,
       upvotes: 56,
       status: 'resolved',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
@@ -229,6 +266,8 @@ export function seedIfEmpty() {
       categoryConfidence: 0.93,
       upvotes: 37,
       status: 'in_progress',
+      userId: 'demo-user-1',
+      userName: 'Alex Rivera',
       createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     },
   ];

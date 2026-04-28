@@ -4,6 +4,7 @@
 
 import { getCategoryByName } from '../data/categories.js';
 import { hasUpvoted, upvoteIssue, removeUpvote } from '../data/store.js';
+import { getCommentCount } from '../data/comments.js';
 import { timeAgo, truncate, escapeHtml, formatStatus, getStatusClass } from '../utils/helpers.js';
 
 /**
@@ -20,6 +21,7 @@ export function createIssueCard(issue, onSelect) {
 
   const cat = getCategoryByName(issue.category);
   const voted = hasUpvoted(issue.id);
+  const commentCount = getCommentCount(issue.id);
 
   // Generate a placeholder gradient for issues without images
   const imageHtml = issue.imageUrl
@@ -39,16 +41,26 @@ export function createIssueCard(issue, onSelect) {
       <p class="issue-card-description">${escapeHtml(truncate(issue.description, 140))}</p>
 
       <div class="issue-card-meta">
-        <div class="issue-card-location">
+        <div class="issue-card-location" style="margin-bottom:var(--space-2);">
           <i data-lucide="map-pin" style="width:12px;height:12px;flex-shrink:0;"></i>
-          <span>${escapeHtml(truncate(issue.location?.address || 'Unknown', 30))}</span>
+          <span>${escapeHtml(truncate(issue.location?.address || 'Unknown', 40))}</span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:var(--space-3);">
-          <button class="upvote-btn ${voted ? 'upvoted' : ''}" id="upvote-${issue.id}" aria-label="Upvote">
-            <i data-lucide="arrow-big-up" class="upvote-icon" style="width:16px;height:16px;"></i>
-            <span class="upvote-count">${issue.upvotes || 0}</span>
-          </button>
+        <div style="font-size:var(--font-xs);color:var(--text-tertiary);margin-bottom:var(--space-3);">
+          Reported by <strong>${escapeHtml(issue.userName || 'Anonymous')}</strong>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-3);justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:var(--space-3);">
+            <button class="upvote-btn ${voted ? 'upvoted' : ''}" id="upvote-${issue.id}" aria-label="Upvote">
+              <i data-lucide="arrow-big-up" class="upvote-icon" style="width:16px;height:16px;"></i>
+              <span class="upvote-count">${issue.upvotes || 0}</span>
+            </button>
+            <div style="font-size:var(--font-xs);color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+              <i data-lucide="message-circle" style="width:14px;height:14px;"></i>
+              ${commentCount}
+            </div>
+          </div>
           <span class="issue-card-time">${timeAgo(issue.createdAt)}</span>
         </div>
       </div>

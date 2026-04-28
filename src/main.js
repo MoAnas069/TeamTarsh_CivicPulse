@@ -19,12 +19,33 @@ import { createIssueFeed } from './components/issue-feed.js';
 import { createIssueDetail } from './components/issue-detail.js';
 import { openReportModal } from './components/report-modal.js';
 import { createMapView } from './components/map-view.js';
+import { openAuthModal } from './components/auth-modal.js';
+import { createProfilePage } from './components/profile-page.js';
+
+import { isLoggedIn, seedDemoUser } from './data/auth.js';
+import { seedComments } from './data/comments.js';
+import { seedNotifications } from './data/notifications.js';
 
 // ---- Initialize ----
 const app = document.getElementById('app');
 
 // Seed demo data on first launch
 seedIfEmpty();
+seedDemoUser();
+seedComments();
+seedNotifications();
+
+// Auth barrier wrapper
+function requireAuth(action) {
+  if (isLoggedIn()) {
+    action();
+  } else {
+    openAuthModal(() => {
+      renderApp(); // Re-render to update header
+      action();
+    });
+  }
+}
 
 // Current view state
 let currentView = 'feed'; // 'feed' | 'detail' | 'map'
@@ -36,12 +57,17 @@ function renderApp() {
 
   // Header (always present)
   const header = createHeader({
-    onReportClick: () => openReportModal(() => {
-      // After successful submission, ensure feed is showing
-      if (currentView !== 'feed') {
-        navigateTo('feed');
-      }
+    onReportClick: () => requireAuth(() => {
+      openReportModal(() => {
+        // After successful submission, ensure feed is showing
+        if (currentView !== 'feed') {
+          navigateTo('feed');
+        }
+      });
     }),
+    onLoginClick: () => openAuthModal(() => renderApp()),
+    onProfileClick: () => navigateTo('profile'),
+    onNavigateToIssue: (id) => navigateTo('detail', id),
   });
   app.appendChild(header);
 
@@ -56,6 +82,9 @@ function renderApp() {
     case 'map':
       renderMapView();
       break;
+    case 'profile':
+      renderProfileView();
+      break;
   }
 
   // Re-init lucide icons
@@ -67,7 +96,7 @@ function renderApp() {
 function renderFeedView() {
   // Hero
   const hero = createHero({
-    onReportClick: () => openReportModal(() => {}),
+    onReportClick: () => requireAuth(() => openReportModal(() => {})),
     onBrowseClick: () => {
       const feed = document.getElementById('feed-section');
       if (feed) feed.scrollIntoView({ behavior: 'smooth' });
@@ -93,9 +122,11 @@ function renderFeedView() {
 }
 
 function renderDetailView() {
-  const detail = createIssueDetail(currentIssueId, () => {
-    navigateTo('feed');
-  });
+  const detail = createIssueDetail(
+    currentIssueId,
+    () => navigateTo('feed'),
+    () => openAuthModal(() => renderApp())
+  );
   app.appendChild(detail);
 
   // Scroll to top
@@ -111,6 +142,16 @@ function renderMapView() {
     () => navigateTo('feed'),
   );
   app.appendChild(mapView);
+}
+
+function renderProfileView() {
+  const profile = createProfilePage(
+    () => navigateTo('feed'),
+    (id) => navigateTo('detail', id),
+    () => navigateTo('feed')
+  );
+  app.appendChild(profile);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function navigateTo(view, issueId) {
