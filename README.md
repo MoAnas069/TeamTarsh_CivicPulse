@@ -182,11 +182,6 @@ CivicPulse uses a **government portal design language**:
 3. Commit changes (`git commit -m "Add ward-level heatmaps"`)
 4. Push to branch (`git push origin feature/ward-heatmaps`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
 ---
 
 <p align="center">

@@ -182,7 +182,7 @@ function renderGovPanelView() {
 }
 
 function renderAnalyticsView() {
-  const dashboard = createAnalyticsDashboard();
+  const dashboard = createAnalyticsDashboard(() => navigateTo('feed'));
   app.appendChild(dashboard);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

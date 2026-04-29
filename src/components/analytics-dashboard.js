@@ -6,7 +6,7 @@
 import { getAllWards, getWardMetrics, getDepartmentMetrics, getLeaderboard } from '../data/metrics.js';
 import { getCurrentUser } from '../data/auth.js';
 
-export function createAnalyticsDashboard() {
+export function createAnalyticsDashboard(onBack) {
   const container = document.createElement('div');
   container.className = 'container analytics-dashboard animate-fade-in';
   container.id = 'analytics-dashboard';
@@ -18,6 +18,9 @@ export function createAnalyticsDashboard() {
     if (!user || user.role !== 'official') {
       container.innerHTML = `
         <div style="padding:var(--space-12) 0;text-align:center;max-width:600px;margin:0 auto;">
+          <button class="btn btn-ghost btn-sm" id="analytics-back-btn-unauth" style="margin-bottom:var(--space-8);">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Feed
+          </button>
           <div style="background:var(--primary-50);width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-6);border:2px solid var(--primary-200);">
             <i data-lucide="lock" style="width:36px;height:36px;color:var(--primary-500);"></i>
           </div>
@@ -31,6 +34,9 @@ export function createAnalyticsDashboard() {
         </div>
       `;
       if (window.lucide) window.lucide.createIcons({ nodes: [container] });
+      container.querySelector('#analytics-back-btn-unauth')?.addEventListener('click', () => {
+        if (onBack) onBack();
+      });
       return;
     }
 
@@ -42,6 +48,9 @@ export function createAnalyticsDashboard() {
     // Header & Ward Selector
     let html = `
       <div style="padding:var(--space-8) 0;">
+        <button class="btn btn-ghost btn-sm" id="analytics-back-btn" style="margin-bottom:var(--space-4);padding-left:0;">
+          <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Feed
+        </button>
         <div class="analytics-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-8);flex-wrap:wrap;gap:var(--space-4);">
           <div>
             <h2 style="font-size:var(--font-3xl);margin-bottom:var(--space-2);color:var(--primary-500);"><i data-lucide="bar-chart-2" style="width:28px;height:28px;display:inline;vertical-align:middle;color:var(--primary-500);margin-right:8px;"></i>Analytics Hub</h2>
@@ -158,6 +167,10 @@ export function createAnalyticsDashboard() {
 
     container.querySelector('#export-csv-btn')?.addEventListener('click', () => {
       alert('Downloaded: civicpulse_report.csv');
+    });
+
+    container.querySelector('#analytics-back-btn')?.addEventListener('click', () => {
+      if (onBack) onBack();
     });
   }
 

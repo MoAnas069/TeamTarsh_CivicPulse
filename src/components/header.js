@@ -21,13 +21,13 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onGo
     let authHtml = '';
     if (user) {
       authHtml = `
-        <div class="header-actions" style="display:flex;align-items:center;gap:var(--space-4);">
+        <div class="header-actions">
           <div id="notif-mount"></div>
           <div class="profile-dropdown-container" style="position:relative;">
             <button class="profile-avatar-btn" id="header-avatar" style="background:${user.avatarColor};width:32px;height:32px;border-radius:50%;border:${user.role === 'official' ? '2px solid var(--teal-500)' : 'none'};color:white;font-weight:600;font-size:12px;cursor:pointer;">
               ${getInitials(user.name)}
             </button>
-            <div class="profile-dropdown" id="profile-dropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);min-width:220px;z-index:100;">
+            <div class="profile-dropdown" id="profile-dropdown" style="display:none;">
               <div style="padding:var(--space-3);border-bottom:1px solid var(--border-color);">
                 <div style="font-weight:600;color:var(--text-primary);">${user.name}</div>
                 <div style="font-size:var(--font-xs);color:var(--text-tertiary);">${user.email}</div>
@@ -63,7 +63,7 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onGo
           <span>Civic<span class="text-gradient">Pulse</span></span>
         </a>
 
-        <div class="header-nav-links" style="display:flex;align-items:center;gap:var(--space-6);margin-left:var(--space-4);flex:1;">
+        <div class="header-nav-links">
           <button class="btn btn-ghost btn-sm" id="nav-analytics">
             <i data-lucide="bar-chart-2" style="width:16px;height:16px;"></i>
             Analytics
@@ -89,6 +89,23 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onGo
           </button>
         </nav>
       </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div class="mobile-menu-dropdown" id="mobile-menu-dropdown" style="display:none;position:absolute;top:100%;left:0;width:100%;background:var(--bg-surface);border-bottom:1px solid var(--border-color);box-shadow:var(--shadow-md);z-index:99;">
+        <div class="container" style="padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);">
+          <button class="btn btn-ghost" id="mobile-nav-analytics" style="width:100%;justify-content:flex-start;">
+            <i data-lucide="bar-chart-2" style="width:16px;height:16px;"></i> Analytics
+          </button>
+          ${!user ? `
+            <button class="btn btn-ghost" id="mobile-nav-login" style="width:100%;justify-content:flex-start;">
+              <i data-lucide="log-in" style="width:16px;height:16px;"></i> Sign In
+            </button>
+          ` : ''}
+          <button class="btn btn-primary" id="mobile-nav-report" style="width:100%;justify-content:center;">
+            <i data-lucide="plus" style="width:16px;height:16px;"></i> Report Issue
+          </button>
+        </div>
+      </div>
     `;
 
     // Mount notification panel
@@ -102,6 +119,38 @@ export function createHeader({ onReportClick, onLoginClick, onProfileClick, onGo
     }
 
     // Handlers
+    const mobileMenuBtn = header.querySelector('#mobile-menu-toggle');
+    const mobileDropdown = header.querySelector('#mobile-menu-dropdown');
+    
+    if (mobileMenuBtn && mobileDropdown) {
+      mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = mobileDropdown.style.display === 'block';
+        mobileDropdown.style.display = isVisible ? 'none' : 'block';
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!mobileMenuBtn.contains(e.target) && !mobileDropdown.contains(e.target)) {
+          mobileDropdown.style.display = 'none';
+        }
+      });
+    }
+
+    header.querySelector('#mobile-nav-report')?.addEventListener('click', () => {
+      if (mobileDropdown) mobileDropdown.style.display = 'none';
+      if (onReportClick) onReportClick();
+    });
+
+    header.querySelector('#mobile-nav-analytics')?.addEventListener('click', () => {
+      if (mobileDropdown) mobileDropdown.style.display = 'none';
+      if (onAnalyticsClick) onAnalyticsClick();
+    });
+
+    header.querySelector('#mobile-nav-login')?.addEventListener('click', () => {
+      if (mobileDropdown) mobileDropdown.style.display = 'none';
+      if (onLoginClick) onLoginClick();
+    });
+
     header.querySelector('#header-report-btn')?.addEventListener('click', onReportClick);
     
     header.querySelector('#header-logo')?.addEventListener('click', (e) => {

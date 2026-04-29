@@ -91,25 +91,6 @@ Complete visual overhaul to transform CivicPulse from a dark-mode startup aesthe
 - **Borders** — Clean `1px solid #D9DEE5` instead of translucent glass borders
 - **Animations** — Toned down bouncy spring curves to subtle ease-in/out fades. Removed confetti entirely.
 
-#### Emoji Removal (100% complete)
-Every single emoji was removed from the codebase and replaced with professional alternatives:
-
-| Location | Emojis Removed | Replaced With |
-|---|---|---|
-| Header logo | 🏛️ | Generated civic emblem image |
-| Category pills | 🚧💡🗑️💧🌳🏗️🚦📢⚡📋 | Lucide icons (`construction`, `lightbulb`, `trash-2`, etc.) |
-| Status filters | 🔴🟡🟢 | 8px colored CSS dots |
-| Report modal steps | 📸📍✍️✅ | Lucide icons (`image`, `map-pin`, `pen-line`, `check-circle`) |
-| AI category badge | 🤖 | Lucide `cpu` icon |
-| Auth modal headers | 👋🚀 | Lucide `log-in`, `user-plus` |
-| Success toasts | 🎉 | Plain text |
-| Leaderboard medals | 🥇🥈🥉 | Numbered badge circles |
-| Map popups | 📍👍 | Plain text labels |
-| Gov panel headers | 📥⚡✅🚨🔥 | Lucide `inbox`, `briefcase`, `check-circle` |
-| Profile stats | 👍💬 | Lucide `arrow-big-up`, `message-circle` |
-| Notification seeds | 🎉 | Removed |
-| Console logs | 🏛️ | Removed |
-
 **Verification:** Regex sweep for Unicode emoji ranges (U+1F300–U+1F9FF, U+2600–U+26FF, U+2700–U+27BF) returns **0 results** across the entire `src/` directory.
 
 #### Generated Assets
@@ -129,6 +110,12 @@ Every single emoji was removed from the codebase and replaced with professional 
 
 #### Map Theme
 Switched from CartoDB Dark Matter to **CartoDB Positron** (light tiles) across all map instances (detail view, report modal mini-map, full map view).
+
+### 3.1 — Mobile Layout Polish
+- **Header Responsiveness** — Stripped inline flex styles from header navigation and migrated to CSS media queries for proper mobile collapsing.
+- **Mobile Navigation** — Implemented the previously missing mobile hamburger menu dropdown to enable mobile access to Analytics, Authentication, and Reporting.
+- **Dropdown Overflows** — Fixed the Notification panel overflowing horizontally on small screens by snapping it to viewport width via `position: fixed`. Extracted Profile dropdown styles to CSS for maintainability.
+- **Badge Wrapping** — Added `white-space: nowrap` to prevent awkward line breaks inside category and status badges on small screens.
 
 ---
 
@@ -188,27 +175,10 @@ Switched from CartoDB Dark Matter to **CartoDB Positron** (light tiles) across a
 |---|---|---|
 | Replace `window.navToIssue` hack in government-panel.js | Medium | Use proper event delegation instead of global function |
 | Add unit tests | High | No test coverage currently — add Vitest |
-| Extract inline styles | Low | Some components use inline `style=` for layout — move to CSS classes |
+| Extract inline styles | Low | Cleaned up header/dropdowns, but some components still use inline `style=` — move to CSS classes |
 | Error boundaries | Medium | Add graceful error handling for failed geocoding/map init |
 | Optimize re-renders | Medium | Feed re-renders entire grid on store change — add diffing |
 | Bundle analysis | Low | Check final bundle size and tree-shake unused Lucide icons |
-
----
-
-## API Key Requirements
-
-**Current: None.** The entire platform runs with zero API keys.
-
-| Service | Key Required? |
-|---|---|
-| OpenStreetMap Nominatim | No |
-| CartoDB Tiles | No |
-| Leaflet.js | No |
-| Lucide Icons | No |
-| Google Fonts | No |
-| Browser Geolocation | No |
-
-**Future (Phase 4):** If advanced AI features are added, an LLM API key (OpenAI / Google AI) would be the only external dependency.
 
 ---
 
